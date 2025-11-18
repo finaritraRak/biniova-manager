@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Plus, Search, FolderOpen } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
 import CreateProjectDialog from "../components/CreateProjectDialog";
+import { loadWorkspace } from "../redux/workspaceSlice";
 
 export default function Projects() {
-    
+
+    const dispatch = useDispatch();
+
     const projects = useSelector(
         (state) => state?.workspace?.currentWorkspace?.projects || []
+    );
+
+    const currentWorkspace = useSelector(
+        (state) => state?.workspace?.currentWorkspace
     );
 
     const [filteredProjects, setFilteredProjects] = useState([]);
@@ -46,27 +53,57 @@ export default function Projects() {
         filterProjects();
     }, [projects, searchTerm, filters]);
 
+    // 🔥 Rafraîchir automatiquement les projets après création
+    const handleProjectCreated = () => {
+        if (!currentWorkspace?.id) return;
+        dispatch(loadWorkspace(currentWorkspace.id));
+    };
+
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
+
             {/* Header */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1"> Projects </h1>
-                    <p className="text-gray-500 dark:text-zinc-400 text-sm"> Manage and track your projects </p>
+                    <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1"> 
+                        Projects 
+                    </h1>
+                    <p className="text-gray-500 dark:text-zinc-400 text-sm"> 
+                        Manage and track your projects 
+                    </p>
                 </div>
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition" >
+
+                <button
+                    onClick={() => setIsDialogOpen(true)}
+                    className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition"
+                >
                     <Plus className="size-4 mr-2" /> New Project
                 </button>
-                <CreateProjectDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
+
+                <CreateProjectDialog
+                    isDialogOpen={isDialogOpen}
+                    setIsDialogOpen={setIsDialogOpen}
+                    onCreated={handleProjectCreated} // 🔥 rechargement backend
+                />
             </div>
 
-            {/* Search and Filters */}
+            {/* Search + Filters */}
             <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative w-full max-w-sm">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-zinc-400 w-4 h-4" />
-                    <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} className="w-full pl-10 text-sm pr-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:border-blue-500 outline-none" placeholder="Search projects..." />
+                    <input
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={searchTerm}
+                        className="w-full pl-10 text-sm pr-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-400 focus:border-blue-500 outline-none"
+                        placeholder="Search projects..."
+                    />
                 </div>
-                <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm" >
+
+                <select
+                    value={filters.status}
+                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                    className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm"
+                >
                     <option value="ALL">All Status</option>
                     <option value="ACTIVE">Active</option>
                     <option value="PLANNING">Planning</option>
@@ -74,7 +111,12 @@ export default function Projects() {
                     <option value="ON_HOLD">On Hold</option>
                     <option value="CANCELLED">Cancelled</option>
                 </select>
-                <select value={filters.priority} onChange={(e) => setFilters({ ...filters, priority: e.target.value })} className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm" >
+
+                <select
+                    value={filters.priority}
+                    onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
+                    className="px-3 py-2 rounded-lg border border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm"
+                >
                     <option value="ALL">All Priority</option>
                     <option value="HIGH">High</option>
                     <option value="MEDIUM">Medium</option>
@@ -95,7 +137,10 @@ export default function Projects() {
                         <p className="text-gray-500 dark:text-zinc-400 mb-6 text-sm">
                             Create your first project to get started
                         </p>
-                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mx-auto text-sm" >
+                        <button
+                            onClick={() => setIsDialogOpen(true)}
+                            className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mx-auto text-sm"
+                        >
                             <Plus className="size-4" />
                             Create Project
                         </button>

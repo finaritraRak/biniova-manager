@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { loadWorkspace } from "./redux/workspaceSlice";
+
 import { Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import { Toaster } from "react-hot-toast";
@@ -8,6 +12,13 @@ import ProjectDetails from "./pages/ProjectDetails";
 import TaskDetails from "./pages/TaskDetails";
 
 const App = () => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const workspaceId = "TON_WORKSPACE_ID"; // Remplacer par un vrai ID venant de ta DB Neon
+        dispatch(loadWorkspace(workspaceId));
+    }, []);
+
     return (
         <>
             <Toaster />
